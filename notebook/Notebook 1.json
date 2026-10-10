@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "488d8282-17a9-4faa-b16b-8f8130076502"
+				"spark.autotune.trackingId": "4abc63c0-0ad9-43c0-aedc-d4d407ff2e29"
 			}
 		},
 		"metadata": {
@@ -72,22 +72,26 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"df = spark.read.jdbc(\n",
+					"spark.read.jdbc(\n",
 					"    url=jdbc_url, \n",
 					"    table=\"dbo.[Producttest]\"\n",
-					")"
+					").createOrReplaceTempView(\"test\")"
 				],
-				"execution_count": 31
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
 					"collapsed": false
 				},
 				"source": [
-					"display (df)"
+					"%%sql\n",
+					"select * from test"
 				],
-				"execution_count": 32
+				"execution_count": 35
 			}
 		]
 	}
