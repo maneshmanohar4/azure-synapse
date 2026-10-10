@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "acc31c80-9721-43f5-bcf8-dc971e0115c0"
+				"spark.autotune.trackingId": "488d8282-17a9-4faa-b16b-8f8130076502"
 			}
 		},
 		"metadata": {
@@ -52,9 +52,42 @@
 			{
 				"cell_type": "code",
 				"source": [
-					""
+					"from pyspark.sql.functions import *"
 				],
-				"execution_count": null
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"jdbc_url = (\"jdbc:sqlserver://test-exp-sql-server.database.windows.net:1433;database=test-exp-db;\"\n",
+					"\"user=CloudSA787f302a@test-exp-sql-server;\"\n",
+					"\"password=M@n33shjc3@;\"\n",
+					"\"encrypt=true;\"\n",
+					"\"trustServerCertificate=false;\"\n",
+					"\"hostNameInCertificate=*.database.windows.net;\"\n",
+					"\"loginTimeout=30;\")"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df = spark.read.jdbc(\n",
+					"    url=jdbc_url, \n",
+					"    table=\"dbo.[Producttest]\"\n",
+					")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"display (df)"
+				],
+				"execution_count": 32
 			}
 		]
 	}
