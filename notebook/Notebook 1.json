@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4abc63c0-0ad9-43c0-aedc-d4d407ff2e29"
+				"spark.autotune.trackingId": "3562e141-b78d-4d25-aa44-1cdd7bdc0719"
 			}
 		},
 		"metadata": {
@@ -54,7 +54,7 @@
 				"source": [
 					"from pyspark.sql.functions import *"
 				],
-				"execution_count": 23
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -67,17 +67,24 @@
 					"\"hostNameInCertificate=*.database.windows.net;\"\n",
 					"\"loginTimeout=30;\")"
 				],
-				"execution_count": 27
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"spark.read.jdbc(\n",
+					"df=spark.read.jdbc(\n",
 					"    url=jdbc_url, \n",
 					"    table=\"dbo.[Producttest]\"\n",
-					").createOrReplaceTempView(\"test\")"
+					")#.createOrReplaceTempView(\"test\")"
 				],
-				"execution_count": 33
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df.write.saveAsTable(\"Producttest\")"
+				],
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
