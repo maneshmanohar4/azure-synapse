@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "361da105-6ba3-49ed-a78e-fb6c328599b1"
+				"spark.autotune.trackingId": "09acd577-5dcf-4bea-8990-32ef52d84425"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 				"source": [
 					"df=spark.read.format('csv').option('header','true').load('abfss://maindevtest@mainstoragedev.dfs.core.windows.net/testdata/HumanResources_Department')"
 				],
-				"execution_count": 11
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -92,27 +92,50 @@
 					"%%sql\n",
 					"select * from default.Department"
 				],
-				"execution_count": 12
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"df.write.format('delta').save('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department')"
+					"df.write.format('delta').save('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_tgt')"
 				],
-				"execution_count": 13
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df.write.format('delta').save('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_src')"
+				],
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\n",
+					"--delete from delta.`abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_tgt`\n",
+					"where departmentid>10"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\n",
 					"DESCRIBE history delta.`abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department`"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -127,7 +150,7 @@
 					"select * \n",
 					"from delta .`abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department`"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -149,10 +172,27 @@
 			},
 			{
 				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
 				"source": [
+					"src_df = spark.read.format('delta').load('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_src')\n",
+					"tgt_df = spark.read.format('delta').load('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_tgt')\n",
+					"\n",
+					"new_df = src_df.join(tgt_df,src_df.DepartmentID==tgt_df.DepartmentID,'left_anti').withColumn('mergekey',src_df.DepartmentID)\n",
+					"\n",
+					"matched_df = src_df.join(tgt_df,src_df.DepartmentID==tgt_df.DepartmentID,'left_semi')\n",
+					"\n",
+					"insert_df = new_df.unionByName(matched_df.withColumn('mergekey',src_df.DepartmentID)).unionByName(matched_df.withColumn('mergekey',lit(None)))\n",
+					"\n",
+					"display(insert_df)\n",
+					"\n",
+					"\n",
+					"\n",
+					"\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 14
 			}
 		]
 	}
