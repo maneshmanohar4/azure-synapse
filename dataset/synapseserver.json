@@ -1,5 +1,5 @@
 {
-	"name": "AzureSynapseAnalyticsTable1",
+	"name": "synapseserver",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "mainsynapsedev-WorkspaceDefaultSqlServer",
