@@ -1,0 +1,159 @@
+{
+	"name": "Notebook 2",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "mainsparkpool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 1,
+			"runAsWorkspaceSystemIdentity": true,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "1",
+				"spark.autotune.trackingId": "361da105-6ba3-49ed-a78e-fb6c328599b1"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/a2fde2f2-6880-476c-83f9-598426046498/resourceGroups/rg-main-dev/providers/Microsoft.Synapse/workspaces/mainsynapsedev/bigDataPools/mainsparkpool",
+				"name": "mainsparkpool",
+				"type": "Spark",
+				"endpoint": "https://mainsynapsedev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/mainsparkpool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.5",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"from pyspark.sql.functions import *"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"mssparkutils.fs.ls('abfss://maindevtest@mainstoragedev.dfs.core.windows.net/testdata/')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df=spark.read.format('csv').option('header','true').load('abfss://maindevtest@mainstoragedev.dfs.core.windows.net/testdata/HumanResources_Department')"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"df.write.saveAsTable('Department')"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\n",
+					"select * from default.Department"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df.write.format('delta').save('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department')"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\n",
+					"DESCRIBE history delta.`abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department`"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\n",
+					"select * \n",
+					"from delta .`abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department`"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"jdbc_url = (\"jdbc:sqlserver://mainsynapsedev-ondemand.sql.azuresynapse.net:1433;database=synapsedb;\"\n",
+					"\"encrypt=true;\"\n",
+					"\"trustServerCertificate=false;\"\n",
+					"\"hostNameInCertificate=*.database.windows.net;\"\n",
+					"\"loginTimeout=30;\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
