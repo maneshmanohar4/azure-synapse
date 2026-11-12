@@ -18,7 +18,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "1",
-				"spark.autotune.trackingId": "09acd577-5dcf-4bea-8990-32ef52d84425"
+				"spark.autotune.trackingId": "c5a95abb-7ed7-41af-8846-f7d7ef456426"
 			}
 		},
 		"metadata": {
@@ -52,9 +52,54 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"from pyspark.sql.functions import *"
+					"from pyspark.sql.functions import *\n",
+					"from pyspark.sql.window import *"
 				],
-				"execution_count": 2
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"jdbc_url = (\"jdbc:sqlserver://main-sqlserver-dev.database.windows.net:1433;database=mainbasedev;\"\n",
+					"\"user=manesh;\"\n",
+					"\"password=M@n33shjc3@;\"\n",
+					"\"encrypt=true;\"\n",
+					"\"trustServerCertificate=false;\"\n",
+					"\"hostNameInCertificate=*.database.windows.net;\"\n",
+					"\"loginTimeout=30;\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df=spark.read.jdbc(url=jdbc_url,table='[Sales].[CreditCard]')"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df=df.filter(df.CreditCardID<10)"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"display(df)"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df.write.jdbc(url=jdbc_url,table='[Sales].[CreditCard_test]',mode='append')"
+				],
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -107,6 +152,23 @@
 					"df.write.format('delta').save('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_src')"
 				],
 				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df=spark.read.format('delta').load('abfss://mainsynapsestorage@mainstoragedev.dfs.core.windows.net/synapse/workspaces/mainsynapsedev/deltatables/Department_src')"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"display(df)"
+				],
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -193,6 +255,60 @@
 					""
 				],
 				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df=spark.read.csv()\n",
+					"df=spark.read.json()\n",
+					"df=spark.read.parquet()\n",
+					"df=spark.read.orc()\n",
+					"\n",
+					"df=spark.read.jdbc()\n",
+					"df=spark.read.table()\n",
+					"\n",
+					"df=spark.read.format('csv').option('header','true').option('inferSchema','true').option('delimiter',';').load('abfss://fjsjshksjdhj')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"df.write.csv('abfss://maindevtest@mainstoragedev.dfs.core.windows.net/testdata/test.csv')\n",
+					"\n",
+					"df.write.format('avro').save()\n",
+					"\n",
+					"df.write.format('csv').partitionBy().save()\n",
+					"df.write.jdbc(url=kkr,table='')\n",
+					"df.write.format('json').mode('append').save()\n",
+					"df.write.mode().saveAsTable('')"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"jdbc_url=('jdbc:sqlserver//.....')\n",
+					"\n",
+					"tab1=spark.read.format('csv').option('header','true').option('inferSchema','true').load('abfss:/.jdskdjhdjkhs')\n",
+					"\n",
+					"tab2=spark.read.jdbc(url=jdbc_url, table='dbo.testtab')\n",
+					"\n",
+					"tab3= spark.read.table('default.testtab3')\n",
+					"\n",
+					"joineddf=tab1.join(tab2,tab1.key=tab2.key,'inner')\\\n",
+					"             .join(tab3,tab2.key=tab3.key,'inner')\\\n",
+					"             .filter(tab2.filtcol>500)\\\n",
+					"             .groupBy(tab1.col1,tab2.col2,tab3.col3).agg(sum(tab2.total).alias(\"tab2total\"))\\\n",
+					"             .withColumn('rowno',row_number().over(Window.partitionBy(col(\"partitioncol\")).orderBy(col(\"sortcol\").desc())))\n",
+					"             .filter(col(\"rowno\")>1).drop(\"rowno\")\n",
+					"\n",
+					"joineddf.write.format('csv').option('delimiter',':').save('path')\n",
+					"joineddf.write.partitionBy(\"year\").saveAsTable('default.test')\n",
+					"joineddf.write.jdbc(url=jdbc_url,table='dbo.tab',mode='append')\n",
+					""
+				],
+				"execution_count": null
 			}
 		]
 	}
